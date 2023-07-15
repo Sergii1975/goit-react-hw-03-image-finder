@@ -1,6 +1,5 @@
-import { Watch } from  'react-loader-spinner'
 import React from 'react';
-
+import { Watch } from  'react-loader-spinner'
 import { LoadWrapper } from './Loader.styled'
 
  const Loader = () => {

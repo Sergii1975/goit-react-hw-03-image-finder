@@ -36,7 +36,7 @@ export const SearchFormBtn = styled.button`
   height: 48px;
   border: 0;
   background-image: url(${backgroundImage});
-  background-size: 40%;
+  background-size: 45%;
   background-repeat: no-repeat;
   background-position: center;
   opacity: 0.6;
@@ -45,6 +45,7 @@ export const SearchFormBtn = styled.button`
   outline: none;
   &:hover {
   opacity: 1;
+  transform: scale(1.05)
 }
 `
 export const SearchFormButtonLabel = styled.span`

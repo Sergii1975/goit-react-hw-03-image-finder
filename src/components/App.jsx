@@ -7,7 +7,7 @@ import Loader from './Loader/Loader';
 import { ToastContainer, toast, Flip } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import Searchbar from './Searchbar/Searchbar';
-import { AppDiv } from './App.styled';
+import { AppDiv, AppFrame } from './App.styled';
 
 
 export class App extends Component {
@@ -90,7 +90,7 @@ componentDidUpdate(_prevProps, prevState) {
     const { images, isLoading, error, showModal, selectedImage, isLastPage } = this.state;
 
     return (
-      <AppDiv>
+      <AppFrame>
         <ToastContainer transition={Flip}/>
         <Searchbar onSubmit={this.handleSearchSubmit} />
 
@@ -108,7 +108,7 @@ componentDidUpdate(_prevProps, prevState) {
         {showModal && (
           <Modal image={selectedImage} onClose={this.handleModalClose} />
         )}
-      </AppDiv>
+      </AppFrame>
     );
   }
 }
