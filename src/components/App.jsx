@@ -7,7 +7,7 @@ import Loader from './Loader/Loader';
 import { ToastContainer, toast, Flip } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import Searchbar from './Searchbar/Searchbar';
-import { AppDiv, AppFrame } from './App.styled';
+import {AppFrame } from './App.styled';
 
 
 export class App extends Component {
