@@ -1,6 +1,7 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { SearchBarHead, SearchForm, SearchFormBtn, SearchFormButtonLabel, SearchFormInput } from './Searchbar.styled'
+import { toast } from 'react-toastify';
 
  class Searchbar extends Component {
  
@@ -14,15 +15,13 @@ import { SearchBarHead, SearchForm, SearchFormBtn, SearchFormButtonLabel, Search
 
   handleSubmit = event => {    
     event.preventDefault();
-    if (!this.state.query.trim()) { 
-      return
+    if (this.state.query.trim() === '') { 
+      return toast.info('Please, enter search word!');
     }
     this.props.onSubmit(this.state.query);
-    // this.setState({ query: '' });
   };
 
   render() {
-    // const { query } = this.state;
     
     return (
       <SearchBarHead>
