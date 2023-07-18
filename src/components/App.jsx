@@ -77,9 +77,8 @@ export class App extends Component{
         ) : ( 
           <ImageGallery images={images}  />
         )}
-        {loadMore && <Button onloadMore={this.onloadMore}/>}
-        
-    </AppFrame> 
+        {loadMore && <Button onloadMore={this.onloadMore}/>}        
+      </AppFrame> 
     )
   };
 };
