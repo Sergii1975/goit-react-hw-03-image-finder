@@ -1,46 +1,48 @@
 import React, { Component } from 'react';
-import PropTypes from 'prop-types';
+import { createPortal } from 'react-dom';
 import { Overlay, ModalDiv } from './Modal.styled'
+import PropTypes from 'prop-types';
 
- class Modal extends Component {
-  componentDidMount() {
-    window.addEventListener('keydown', this.handleKeyDown);    
-  }
+const modalRoot = document.querySelector('#modal-root');
 
-  componentWillUnmount() {
-    window.removeEventListener('keydown', this.handleKeyDown);
-  }
+class Modal extends Component {
+    componentDidMount() {
+        document.addEventListener('keydown', this.handleKeyDown);
+    };
 
-  handleKeyDown = event => {
-    if (event.code === 'Escape') {
-      this.props.onClose();
+    componentWillUnmount() {
+        document.removeEventListener('keydown', this.handleKeyDown);
+    };
+
+    handleKeyDown = (e) => {
+        if (e.code === 'Escape') {
+            this.props.closeModal();
+        }
+    };
+
+    handleBackdropClick = (e) => {
+        if (e.target === !e.currentTarget) {
+            this.props.closeModal();
+        }
+    };
+
+    render() {
+        const { tags, largeImageURL } = this.props;
+        return createPortal (
+            <Overlay onClick={this.handleBackdropClick}>
+                <ModalDiv>
+                    <img src={largeImageURL} alt={tags}/>
+                </ModalDiv>
+            </Overlay>,
+            modalRoot
+        );
     }
-  };
-
-  handleClick = event => {
-    if (event.target === event.currentTarget) {
-      this.props.onClose();
-    }
-  };
-
-  render() {
-    const { image } = this.props;
-
-    return (
-      <Overlay onClick={this.handleClick}>
-        <ModalDiv>
-          <img src={image.largeImageURL} alt={ image.tags } />
-        </ModalDiv>
-      </Overlay>
-    );
-  }
-}
-
-Modal.propTypes = {
-  image: PropTypes.shape({
-    largeImageURL: PropTypes.string.isRequired,
-  }).isRequired,
-  onClose: PropTypes.func.isRequired,
 };
 
-export default Modal
+Modal.propTypes = {
+    tags: PropTypes.string.isRequired,
+    largeImageURL: PropTypes.string.isRequired,
+};
+
+
+export default Modal;

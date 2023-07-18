@@ -19,4 +19,4 @@ import { LoadWrapper } from './Loader.styled'
   );
 };
 
-export default Loader
+export default Loader;

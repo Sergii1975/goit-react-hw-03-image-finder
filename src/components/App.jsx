@@ -1,115 +1,85 @@
-import React, { Component } from "react";
-import axios from "axios";
-import ImageGallery  from "./ImageGallery/ImageGallery";
-import Button from './Button/Button';
-import Modal from './Modal/Modal';
-import Loader from './Loader/Loader';
+import React, { Component } from 'react';
 import Searchbar from './Searchbar/Searchbar';
-import {AppFrame } from './App.styled';
+import ImageGallery from './ImageGallery/ImageGallery';
+import Button from './Button/Button';
 import { ToastContainer, toast, Flip } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
+import { fetchImages } from './services/api';
+import Loader from './Loader/Loader';
+import { animateScroll } from 'react-scroll';
+import {AppFrame } from './App.styled';
 
-
-
-export class App extends Component {
+export class App extends Component{
   state = {
+    searchQuery: '',
     images: [],
-    isLoading: false,
     error: null,
-    query: '',
+    isLoading: false,
     page: 1,
-    showModal: false,
-    selectedImage: null,
-    isLastPage: false,
+    per_page: 12,
+    loadMore: false,
   };
 
-componentDidUpdate(_prevProps, prevState) { 
-  if (this.state.query!== prevState.query) {       
-      this.setState({ images: [], page: 1, isLastPage: false }, () => {
-  this.fetchImages();
-});
-    }  
-}
-
-  fetchImages = () => {
-    const { query, page } = this.state;
-    const API = "36982513-bf126f349b94d33a115a611fc";
-
-    this.setState({ isLoading: true });
-
-    axios
-      .get(
-        `https://pixabay.com/api/?q=${query}&page=${page}&key=${API}&image_type=photo&orientation=horizontal&per_page=12`
-      )
-      .then(response => {
-        const { hits, totalHits } = response.data;
-
-        if (hits.length === 0) { 
-        return toast('Sorry, there are no images matching your request...', {position: toast.POSITION.TOP_CENTER, icon: "🤔"});
-        }
-
-        const modifiedHits = hits.map(({ id, tags, webformatURL, largeImageURL }) => ({
-      id,
-      tags,
-      webformatURL,
-      largeImageURL
-    }));
-
-        this.setState(prevState => ({
-          images: [...prevState.images, ...modifiedHits],
-          loadMore: this.state.page < Math.ceil(totalHits / 12 ),
-          page: prevState.page + 1,
-          isLastPage: prevState.images.length + modifiedHits.length >= totalHits
-        }));
-      })
-      .catch(error => {
-        this.setState({ error: error.message });
-      })
-      .finally(() => {
-        this.setState({ isLoading: false });
-      });
+  componentDidUpdate(_, prevState) {
+    const { searchQuery, page } = this.state;
+    if (prevState.searchQuery !== searchQuery || prevState.page !== page) {
+      this.getImages(searchQuery, page);
+    }
   };
 
-  handleSearchSubmit = query => {
-      if (this.state.query === query) {
+   getImages = async (query, page) => {
+     this.setState({ isLoading: true});
+     if (!query) {
       return;
     }
-  this.setState({ query: query, page: 1, images: [], error: null, isLastPage: false });
-};
-
-  handleImageClick = image => {
-    this.setState({ selectedImage: image, showModal: true });
-    document.body.style.overflow = 'hidden';
+    try {
+      const { hits, totalHits } = await fetchImages(query, page);
+      if (!hits.length) {
+        this.setState({loadMore: false}) 
+        return toast.info('Nothing was found for your request. Try something else');  
+      }
+      this.setState(prevState => ({
+        images: [...prevState.images, ...hits],
+        loadMore: this.state.page < Math.ceil(totalHits / this.state.per_page),
+      }));
+    } catch (error) {
+      this.setState({ error: error.message });
+    } finally {
+      this.setState({ isLoading: false });
+    }
   };
 
-  handleModalClose = () => {
-    this.setState({ selectedImage: null, showModal: false });
-    document.body.style.overflow = 'auto';
+  hangleFormSubmit = searchQuery => {
+    this.setState({ searchQuery, images: [], page: 1, })
+  };
+
+  onloadMore = () => {
+    this.setState(prevState => ({ page: prevState.page + 1 }));
+    this.scrollToBottomButton()
+  };
+
+  scrollToBottomButton = () => {
+    animateScroll.scrollToBottom({
+      duration: 2000,
+      delay: 10,
+      smooth: 'linear',
+    });
   };
 
   render() {
-    const { images, isLoading, error, showModal, selectedImage, isLastPage } = this.state;
-
+    const {  images,  loadMore, isLoading} = this.state;
     return (
       <AppFrame>
         <ToastContainer transition={Flip}/>
-        <Searchbar onSubmit={this.handleSearchSubmit} />
-
-        {error && <p>Error: {error}</p>}
-
-        <ImageGallery images={images} onItemClick={this.handleImageClick} />
-
-        {isLoading && <Loader />}
+        <Searchbar onSubmitImage={this.hangleFormSubmit } />
+        {isLoading ? (
+          <Loader/>
+        ) : ( 
+          <ImageGallery images={images}  />
+        )}
+        {loadMore && <Button onloadMore={this.onloadMore}/>}
         
-
-        {!isLoading && images.length > 0 && !isLastPage && (
-          <Button onClick={this.fetchImages} />
-        )}
-
-        {showModal && (
-          <Modal image={selectedImage} onClose={this.handleModalClose} />
-        )}
-      </AppFrame>
-    );
-  }
-}
+    </AppFrame> 
+    )
+  };
+};
